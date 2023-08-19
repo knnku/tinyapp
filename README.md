@@ -1,2 +1,2 @@
 # tinyapp
-A url shortener web app using node.js.
+A web app to shorten urls using node.js.

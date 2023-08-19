@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/knnku/tinyapp/issues"
   },
-  "homepage": "https://github.com/knnku/tinyapp#readme"
+  "homepage": "https://github.com/knnku/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }

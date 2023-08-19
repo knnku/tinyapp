@@ -7,6 +7,8 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+tinyApp.set("view engine", "ejs");
+
 tinyApp.get("/", function (req, res) {
   res.send("Hello!");
 });

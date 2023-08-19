@@ -9,6 +9,11 @@ const urlDatabase = {
 
 tinyApp.set("view engine", "ejs");
 
+tinyApp.get("/urls", function (req, res) {
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
+});
+
 tinyApp.get("/", function (req, res) {
   res.send("Hello!");
 });

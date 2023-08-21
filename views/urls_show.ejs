@@ -11,7 +11,9 @@
     <title>URL - TinyApp Example</title>
   </head>
 
+  
   <body>
+    <div><%- include("partials/_header") %></div>
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
@@ -19,9 +21,10 @@
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
-      </div>
-      <a href="">New URL</a>
+        <a class="btn btn-primary" href="">New URL</a>
+      </div>    
       <div class="card-footer text-muted"></div>
+   
     </div>
     
     <!-- Bootstrap JS -->

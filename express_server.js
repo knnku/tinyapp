@@ -8,6 +8,11 @@ const urlDatabase = {
 };
 
 tinyApp.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: true }));
+
+tinyApp.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
 
 tinyApp.get("/urls/:id", (req, res) => {
   const templateVars = {

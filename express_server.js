@@ -2,6 +2,7 @@ const express = require("express");
 const tinyUrlApp = express();
 const PORT = 8080;
 
+//Generate random number and convert (some of the) chars into a string using base36 to serve as url ID
 function generateRandomString() {
   return Math.random().toString(36).substring(3, 9);
 }
@@ -14,11 +15,10 @@ const urlDatabase = {
 tinyUrlApp.set("view engine", "ejs");
 tinyUrlApp.use(express.urlencoded({ extended: true }));
 
-//------------->
+//-------Insert EXPRESS-HTTP methods here------>
 
 tinyUrlApp.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
-
   res.redirect("/urls");
 });
 

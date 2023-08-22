@@ -17,16 +17,19 @@ tinyUrlApp.use(express.urlencoded({ extended: true }));
 
 //-------Insert EXPRESS-HTTP methods here------>
 
+//Delete URL
 tinyUrlApp.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
 });
 
+// Redirect to long URL -no action implemented
 tinyUrlApp.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
 
+//Create new URL POST
 tinyUrlApp.post("/urls", (req, res) => {
   // console.log(req.body); // Log the POST request body to the console
   // res.send("Ok"); // Respond with 'Ok' (we will replace this)
@@ -37,6 +40,7 @@ tinyUrlApp.post("/urls", (req, res) => {
   res.redirect(`/urls/${tinyUrl}`);
 });
 
+//Create new URL render
 tinyUrlApp.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
@@ -49,15 +53,18 @@ tinyUrlApp.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+//URL Homepage
 tinyUrlApp.get("/urls", function (req, res) {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
+//Server index - not sure why this has been implemented lol
 tinyUrlApp.get("/", function (req, res) {
   res.send("Hello!");
 });
 
+//View URL database object
 tinyUrlApp.get("/urls.json", function (req, res) {
   res.json(urlDatabase);
 });

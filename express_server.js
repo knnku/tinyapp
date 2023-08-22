@@ -14,6 +14,14 @@ const urlDatabase = {
 tinyUrlApp.set("view engine", "ejs");
 tinyUrlApp.use(express.urlencoded({ extended: true }));
 
+//------------->
+
+tinyUrlApp.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+
+  res.redirect("/urls");
+});
+
 tinyUrlApp.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
@@ -24,7 +32,7 @@ tinyUrlApp.post("/urls", (req, res) => {
   // res.send("Ok"); // Respond with 'Ok' (we will replace this)
   let tinyUrl = generateRandomString();
   let longUrl = req.body.longURL;
-  urlDatabase[tinyUrl] = `http://www.${longUrl}`; 
+  urlDatabase[tinyUrl] = `http://www.${longUrl}`;
 
   res.redirect(`/urls/${tinyUrl}`);
 });

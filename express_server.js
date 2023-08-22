@@ -15,9 +15,15 @@ const urlDatabase = {
 tinyUrlApp.set("view engine", "ejs");
 tinyUrlApp.use(express.urlencoded({ extended: true }));
 
-//-------Insert EXPRESS-HTTP methods here------>
+//------- EXPRESS-HTTP methods here from then on ------>
 
+//Edit URL
+tinyUrlApp.post("/urls/:id/edit", (req, res) => {
+  let longUrl = req.body.longURL;
+  urlDatabase[req.params.id] = `http://www.${longUrl}`;
 
+  res.redirect(`/urls`);
+});
 
 //Delete URL
 tinyUrlApp.post("/urls/:id/delete", (req, res) => {
@@ -42,11 +48,12 @@ tinyUrlApp.post("/urls", (req, res) => {
   res.redirect(`/urls/${tinyUrl}`);
 });
 
-//Create new URL render
+//Create new URL form render
 tinyUrlApp.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+//Redirect to new URL after submitting
 tinyUrlApp.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,

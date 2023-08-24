@@ -19,6 +19,12 @@ tinyUrlApp.use(express.urlencoded({ extended: true }));
 
 //------- EXPRESS-HTTP methods here from then on ------>
 
+//Logout - delete cookie
+tinyUrlApp.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect("/urls");
+})
+
 //Login - generate cookie
 tinyUrlApp.post("/login", (req,res) => {
   // console.log(req.body); test-stuff

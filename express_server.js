@@ -17,6 +17,13 @@ tinyUrlApp.use(express.urlencoded({ extended: true }));
 
 //------- EXPRESS-HTTP methods here from then on ------>
 
+//Login
+tinyUrlApp.post("/login", (req,res) => {
+  // console.log(req.body); test-stuff
+  res.cookie("username", req.body.username);
+  res.redirect("/urls");
+});
+
 //Edit URL
 tinyUrlApp.post("/urls/:id/edit", (req, res) => {
   let longUrl = req.body.longURL;

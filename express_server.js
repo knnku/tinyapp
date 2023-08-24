@@ -31,7 +31,7 @@ tinyUrlApp.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
-// Redirect to long URL -no action implemented
+// Redirect to long URL via urls_show
 tinyUrlApp.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);

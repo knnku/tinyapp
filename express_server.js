@@ -35,39 +35,45 @@ tinyUrlApp.use(express.urlencoded({ extended: true }));
 //Register - Render
 tinyUrlApp.get("/register", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    userDB: users,
+    user_id: req.cookies["user_id"],
   };
   res.render("urls_register", templateVars);
 });
 
 //Register - Post
 tinyUrlApp.post("/register", (req, res) => {
-  let userDB = users;
-  let userID = generateRandomString();
-  let user = req.body;
+  const userDB = users;
+  const user = req.body;
+  const userID = generateRandomString();
+  userDB[userID] = { id: userID, email: user.email, password: user.password };
 
-  userDB[userID] =  { id:userID, email:user.email, password: user.password }
+  const templateVars = {
+    userDB: users,
+  };
 
+  console.log(templateVars.userDB);
 
-  console.log(userDB);
+  res.cookie("user_id", userID);
+  res.redirect("/urls");
 });
 
 //Logout - delete cookie
 tinyUrlApp.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
-//Login - generate cookie
-tinyUrlApp.post("/login", (req, res) => {
-  // console.log(req.body); test-stuff
-  if (req.body.username.length === 0) {
-    return res.status(400).send("Username cannot be blank!");
-  }
+// //Login - generate cookie
+// tinyUrlApp.post("/login", (req, res) => {
+//   // console.log(req.body); test-stuff
+//   if (req.body.username.length === 0) {
+//     return res.status(400).send("Username cannot be blank!");
+//   }
 
-  res.cookie("username", req.body.username);
-  res.redirect("/urls");
-});
+//   res.cookie("username", req.body.username);
+//   res.redirect("/urls");
+// });
 
 //Edit URL
 tinyUrlApp.post("/urls/:id/edit", (req, res) => {
@@ -103,7 +109,8 @@ tinyUrlApp.post("/urls", (req, res) => {
 //Create new URL form render
 tinyUrlApp.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    user_id: req.cookies["user_id"],
+    userDB: users,
   };
 
   res.render("urls_new", templateVars);
@@ -114,7 +121,8 @@ tinyUrlApp.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
-    username: req.cookies["username"],
+    user_id: req.cookies["user_id"],
+    userDB: users,
   };
   res.render("urls_show", templateVars);
 });
@@ -123,7 +131,8 @@ tinyUrlApp.get("/urls/:id", (req, res) => {
 tinyUrlApp.get("/urls", function (req, res) {
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"],
+    user_id: req.cookies["user_id"],
+    userDB: users,
   };
   res.render("urls_index", templateVars);
 });

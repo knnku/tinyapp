@@ -13,11 +13,34 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com",
 };
 
+const users = {
+  m21nx8: {
+    id: "m21nx8",
+    email: "someguy@nerd.com",
+    password: "iamnoone",
+  },
+  x8c9fp: {
+    id: "x8c9fp",
+    email: "fourofspades@cards.com",
+    password: "bingo",
+  },
+};
+
+
 tinyUrlApp.set("view engine", "ejs");
 tinyUrlApp.use(cookieParser());
 tinyUrlApp.use(express.urlencoded({ extended: true }));
 
 //------- EXPRESS-HTTP methods here from then on ------>
+
+//Register - Render
+tinyUrlApp.get("/register", (req, res) => {
+  const templateVars = {
+    username: req.cookies["username"],
+  };
+  res.render("urls_register", templateVars);
+})
+
 
 //Logout - delete cookie
 tinyUrlApp.post("/logout", (req, res) => {

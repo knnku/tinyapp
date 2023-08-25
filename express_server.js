@@ -1,6 +1,6 @@
 const express = require("express");
 const tinyUrlApp = express();
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 const PORT = 8080;
 
 //Generate random number and convert (some of the) chars into a string using base36 to serve as url ID
@@ -26,7 +26,6 @@ const users = {
   },
 };
 
-
 tinyUrlApp.set("view engine", "ejs");
 tinyUrlApp.use(cookieParser());
 tinyUrlApp.use(express.urlencoded({ extended: true }));
@@ -39,20 +38,31 @@ tinyUrlApp.get("/register", (req, res) => {
     username: req.cookies["username"],
   };
   res.render("urls_register", templateVars);
-})
+});
 
+//Register - Post
+tinyUrlApp.post("/register", (req, res) => {
+  let userDB = users;
+  let userID = generateRandomString();
+  let user = req.body;
+
+  userDB[userID] =  { id:userID, email:user.email, password: user.password }
+
+
+  console.log(userDB);
+});
 
 //Logout - delete cookie
 tinyUrlApp.post("/logout", (req, res) => {
   res.clearCookie("username");
   res.redirect("/urls");
-})
+});
 
 //Login - generate cookie
-tinyUrlApp.post("/login", (req,res) => {
+tinyUrlApp.post("/login", (req, res) => {
   // console.log(req.body); test-stuff
   if (req.body.username.length === 0) {
-    return res.status(400).send("Username cannot be blank!")
+    return res.status(400).send("Username cannot be blank!");
   }
 
   res.cookie("username", req.body.username);
@@ -111,9 +121,10 @@ tinyUrlApp.get("/urls/:id", (req, res) => {
 
 //URL Homepage
 tinyUrlApp.get("/urls", function (req, res) {
-  const templateVars = { 
-    urls: urlDatabase, 
-    username: req.cookies["username"] };
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies["username"],
+  };
   res.render("urls_index", templateVars);
 });
 

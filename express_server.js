@@ -35,6 +35,14 @@ const findUserByEmail = (email) => {
   }
 };
 
+const findUrlByID = (shortUrl) => {
+  for (const url in urlDatabase) {
+    if (url === shortUrl) {
+      return url;
+    }
+  }
+};
+
 const addUser = (userID, userInput) => {
   users[userID] = {
     id: userID,
@@ -58,6 +66,9 @@ tinyUrlApp.get("/login", (req, res) => {
   const templateVars = {
     user_id: users[userCookieID],
   };
+  if (userCookieID) {
+    return res.redirect("/urls");
+  }
   res.render("urls_login", templateVars);
 });
 
@@ -89,6 +100,9 @@ tinyUrlApp.get("/register", (req, res) => {
   const templateVars = {
     user_id: users[userCookieID],
   };
+  if (userCookieID) {
+    return res.redirect("/urls");
+  }
   res.render("urls_register", templateVars);
 });
 
@@ -136,14 +150,25 @@ tinyUrlApp.post("/urls/:id/delete", (req, res) => {
 
 // Redirect to long URL via urls_show
 tinyUrlApp.get("/u/:id", (req, res) => {
+  const shortURL = req.params.id;
+
+  if (!findUrlByID(shortURL)) {
+    return res.status(400).send("Url does not exist in the database.")
+  }
+
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
 
 //Create new URL - Post
 tinyUrlApp.post("/urls", (req, res) => {
+  const userCookieID = req.cookies["user_id"];
   // console.log(req.body); // Log the POST request body to the console
   // res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  if (!userCookieID) {
+    return res.status(401).send("You need to be logged in to shorten urls!");
+  }
+
   let tinyUrl = generateRandomString();
   let longUrl = req.body.longURL;
   urlDatabase[tinyUrl] = `http://www.${longUrl}`;
@@ -157,7 +182,9 @@ tinyUrlApp.get("/urls/new", (req, res) => {
   const templateVars = {
     user_id: users[userCookieID],
   };
-
+  if (!userCookieID) {
+    return res.redirect("/login");
+  }
   res.render("urls_new", templateVars);
 });
 

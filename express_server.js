@@ -96,7 +96,6 @@ tinyUrlApp.get("/register", (req, res) => {
 tinyUrlApp.post("/register", (req, res) => {
   const userID = generateRandomString();
   const userInput = req.body;
-  // const existEmailCheck = Object.values(users);  -display userdb email values to compare with input
 
   if (!userInput.password || !userInput.email) {
     return res.status(400).send("Email and password can't be blank!");
@@ -121,7 +120,7 @@ tinyUrlApp.post("/logout", (req, res) => {
   res.redirect("/login");
 });
 
-//Edit URL
+//Edit URL - Post
 tinyUrlApp.post("/urls/:id/edit", (req, res) => {
   let longUrl = req.body.longURL;
   urlDatabase[req.params.id] = `http://www.${longUrl}`;
@@ -129,7 +128,7 @@ tinyUrlApp.post("/urls/:id/edit", (req, res) => {
   res.redirect(`/urls`);
 });
 
-//Delete URL
+//Delete URL - Post
 tinyUrlApp.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
@@ -141,7 +140,7 @@ tinyUrlApp.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-//Create new URL - POST
+//Create new URL - Post
 tinyUrlApp.post("/urls", (req, res) => {
   // console.log(req.body); // Log the POST request body to the console
   // res.send("Ok"); // Respond with 'Ok' (we will replace this)

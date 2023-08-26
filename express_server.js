@@ -1,4 +1,5 @@
 const express = require("express");
+const morgan = require("morgan");
 const tinyUrlApp = express();
 const cookieParser = require("cookie-parser");
 const PORT = 8080;
@@ -26,7 +27,24 @@ const users = {
   },
 };
 
+const findUserByEmail = (email) => {
+  for (const userId in users) {
+    if (users[userId].email === email) {
+      return users[userId];
+    }
+  }
+};
+
+const addUser = (userID, userInput) => {
+  users[userID] = {
+    id: userID,
+    email: userInput.email,
+    password: userInput.password,
+  };
+}
+
 tinyUrlApp.set("view engine", "ejs");
+tinyUrlApp.use(morgan("dev"));
 tinyUrlApp.use(cookieParser());
 tinyUrlApp.use(express.urlencoded({ extended: true }));
 
@@ -34,26 +52,34 @@ tinyUrlApp.use(express.urlencoded({ extended: true }));
 
 //Register - Render
 tinyUrlApp.get("/register", (req, res) => {
+  const userCookieID = req.cookies["user_id"];
   const templateVars = {
-    userDB: users,
-    user_id: req.cookies["user_id"],
+    user_id: users[userCookieID],
   };
   res.render("urls_register", templateVars);
 });
 
 //Register - Post
 tinyUrlApp.post("/register", (req, res) => {
-  const userDB = users;
-  const user = req.body;
   const userID = generateRandomString();
-  userDB[userID] = { id: userID, email: user.email, password: user.password };
+  const userInput = req.body;
+  // const existEmailCheck = Object.values(users);  -display userdb email values to compare with input
 
-  const templateVars = {
-    userDB: users,
-  };
+  if (!userInput.password || !userInput.email) {
+    return res.status(400).send("Email and password can't be blank!");
+  }
 
-  console.log(templateVars.userDB);
+  // const user = findUserByEmail(email);
+  // if (existEmailCheck.includes(email)) {
+  //   res
+  //     .status(400)
+  //     .send("Entered email existing. Please enter another email.");
+  // }
 
+
+  addUser(userID, userInput);
+
+  console.log(users); //User DB check
   res.cookie("user_id", userID);
   res.redirect("/urls");
 });
@@ -64,13 +90,12 @@ tinyUrlApp.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-// //Login - generate cookie
+// //OLD LOGIN
 // tinyUrlApp.post("/login", (req, res) => {
 //   // console.log(req.body); test-stuff
 //   if (req.body.username.length === 0) {
 //     return res.status(400).send("Username cannot be blank!");
 //   }
-
 //   res.cookie("username", req.body.username);
 //   res.redirect("/urls");
 // });
@@ -108,9 +133,9 @@ tinyUrlApp.post("/urls", (req, res) => {
 
 //Create new URL form render
 tinyUrlApp.get("/urls/new", (req, res) => {
+  const userCookieID = req.cookies["user_id"];
   const templateVars = {
-    user_id: req.cookies["user_id"],
-    userDB: users,
+    user_id: users[userCookieID],
   };
 
   res.render("urls_new", templateVars);
@@ -118,22 +143,23 @@ tinyUrlApp.get("/urls/new", (req, res) => {
 
 //Redirect to new URL after submitting
 tinyUrlApp.get("/urls/:id", (req, res) => {
+  const userCookieID = req.cookies["user_id"];
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
-    user_id: req.cookies["user_id"],
-    userDB: users,
+    user_id: users[userCookieID],
   };
   res.render("urls_show", templateVars);
 });
 
 //URL Homepage
 tinyUrlApp.get("/urls", function (req, res) {
+  const userCookieID = req.cookies["user_id"];
   const templateVars = {
     urls: urlDatabase,
-    user_id: req.cookies["user_id"],
-    userDB: users,
+    user_id: users[userCookieID],
   };
+
   res.render("urls_index", templateVars);
 });
 

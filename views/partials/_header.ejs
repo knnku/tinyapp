@@ -21,7 +21,7 @@
     <% if (user_id) {%>
       <div class="navbar-nav">
         <form class="form-inline my-2 my-lg-0" action="/logout" method="POST">
-          <span class="navbar-text" style="padding-right: 1em;">Welcome, <b><%= userDB[user_id].email %>!</b></span>
+          <span class="navbar-text" style="padding-right: 1em;">Welcome, <b><%= user_id.email %>!</b></span>
           <button class="btn btn-danger btn-sm" type="submit">LOGOUT</button>
         </form>
       </div>

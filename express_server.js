@@ -52,12 +52,35 @@ tinyUrlApp.use(express.urlencoded({ extended: true }));
 
 //Login - Render
 tinyUrlApp.get("/login", (req, res) => {
+  //Have to include or header partial won't render
+  //even though the page doesn't need it
   const userCookieID = req.cookies["user_id"];
   const templateVars = {
     user_id: users[userCookieID],
   };
-
   res.render("urls_login", templateVars);
+});
+
+//Login - Post
+tinyUrlApp.post("/login", (req, res) => {
+  const userInput = req.body;
+  const user = findUserByEmail(userInput.email);
+
+  if (!userInput.password || !userInput.email) {
+    return res.status(400).send("Email and password can't be blank!");
+  }
+
+  if (!user) {
+    return res.status(403).send("User does not exist!");
+  }
+
+  if (user.password !== userInput.password) {
+    return res.status(403).send("Email and password does not match!");
+  }
+
+  console.log();
+  res.cookie("user_id", user.id);
+  res.redirect("/urls");
 });
 
 //Register - Render
@@ -82,12 +105,12 @@ tinyUrlApp.post("/register", (req, res) => {
   const user = findUserByEmail(userInput.email);
 
   if (user) {
-    return res.status(400).send("User already exists.");
+    return res.status(403).send("User already exists.");
   }
 
   addUser(userID, userInput);
 
-  console.log(users); //User DB check
+  console.log(users); //User DB check - remove when submitting
   res.cookie("user_id", userID);
   res.redirect("/urls");
 });
@@ -95,7 +118,7 @@ tinyUrlApp.post("/register", (req, res) => {
 //Logout - delete cookie
 tinyUrlApp.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 //Edit URL
@@ -170,12 +193,10 @@ tinyUrlApp.get("/hello", function (req, res) {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-
 //View URL database object
 tinyUrlApp.get("/urls.json", function (req, res) {
   res.json(urlDatabase);
 });
-
 
 tinyUrlApp.listen(PORT, () => {
   console.log(`The server is listening on port: ${PORT}`);

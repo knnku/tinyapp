@@ -5,9 +5,9 @@ const cookieParser = require("cookie-parser");
 const PORT = 8080;
 
 //Generate random number and convert (some of the) chars into a string using base36 to serve as url ID
-function generateRandomString() {
+const generateRandomString = () => {
   return Math.random().toString(36).substring(3, 9);
-}
+};
 
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
@@ -41,7 +41,7 @@ const addUser = (userID, userInput) => {
     email: userInput.email,
     password: userInput.password,
   };
-}
+};
 
 tinyUrlApp.set("view engine", "ejs");
 tinyUrlApp.use(morgan("dev"));
@@ -69,13 +69,11 @@ tinyUrlApp.post("/register", (req, res) => {
     return res.status(400).send("Email and password can't be blank!");
   }
 
-  // const user = findUserByEmail(email);
-  // if (existEmailCheck.includes(email)) {
-  //   res
-  //     .status(400)
-  //     .send("Entered email existing. Please enter another email.");
-  // }
+  const user = findUserByEmail(userInput.email);
 
+  if (user) {
+     return res.status(400).send("User already exists.");
+  }
 
   addUser(userID, userInput);
 

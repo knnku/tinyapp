@@ -27,10 +27,8 @@
       </div>
     <% } else { %>
     <div class="navbar-nav">
-      <form class="form-inline my-2 my-lg-0" action="/login" method="POST">
-        <input class="form-control-sm mr-sm-2" name="username" placeholder="email">
-        <input class="form-control-sm mr-sm-2" name="password" placeholder="password">
-        <button class="btn btn-light btn-sm mr-sm-2" type="submit">LOGIN</button>
+      <form class="form-inline my-2 my-lg-0">
+        <a class="btn btn-light btn-sm mr-sm-2" href="/login">LOGIN</a>
         <a class="btn btn-light btn-sm" href="/register">REGISTER</a>
       </form>
     </div>

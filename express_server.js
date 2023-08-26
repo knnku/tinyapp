@@ -50,6 +50,16 @@ tinyUrlApp.use(express.urlencoded({ extended: true }));
 
 //------- EXPRESS-HTTP methods here from then on ------>
 
+//Login - Render
+tinyUrlApp.get("/login", (req, res) => {
+  const userCookieID = req.cookies["user_id"];
+  const templateVars = {
+    user_id: users[userCookieID],
+  };
+
+  res.render("urls_login", templateVars);
+});
+
 //Register - Render
 tinyUrlApp.get("/register", (req, res) => {
   const userCookieID = req.cookies["user_id"];
@@ -72,7 +82,7 @@ tinyUrlApp.post("/register", (req, res) => {
   const user = findUserByEmail(userInput.email);
 
   if (user) {
-     return res.status(400).send("User already exists.");
+    return res.status(400).send("User already exists.");
   }
 
   addUser(userID, userInput);
@@ -87,16 +97,6 @@ tinyUrlApp.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/urls");
 });
-
-// //OLD LOGIN
-// tinyUrlApp.post("/login", (req, res) => {
-//   // console.log(req.body); test-stuff
-//   if (req.body.username.length === 0) {
-//     return res.status(400).send("Username cannot be blank!");
-//   }
-//   res.cookie("username", req.body.username);
-//   res.redirect("/urls");
-// });
 
 //Edit URL
 tinyUrlApp.post("/urls/:id/edit", (req, res) => {
@@ -118,7 +118,7 @@ tinyUrlApp.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-//Create new URL POST
+//Create new URL - POST
 tinyUrlApp.post("/urls", (req, res) => {
   // console.log(req.body); // Log the POST request body to the console
   // res.send("Ok"); // Respond with 'Ok' (we will replace this)
@@ -129,7 +129,7 @@ tinyUrlApp.post("/urls", (req, res) => {
   res.redirect(`/urls/${tinyUrl}`);
 });
 
-//Create new URL form render
+//Create new URL form - render
 tinyUrlApp.get("/urls/new", (req, res) => {
   const userCookieID = req.cookies["user_id"];
   const templateVars = {
@@ -166,14 +166,16 @@ tinyUrlApp.get("/", function (req, res) {
   res.send("Hello!");
 });
 
+tinyUrlApp.get("/hello", function (req, res) {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
+
+
 //View URL database object
 tinyUrlApp.get("/urls.json", function (req, res) {
   res.json(urlDatabase);
 });
 
-tinyUrlApp.get("/hello", function (req, res) {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
 
 tinyUrlApp.listen(PORT, () => {
   console.log(`The server is listening on port: ${PORT}`);

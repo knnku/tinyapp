@@ -36,13 +36,14 @@ tinyUrlApp.use(
   })
 );
 
-//------- HTTP methods here from then on ------>
+//------- HTTP methods from here then on ------>
 
 //Login - Render
 tinyUrlApp.get("/login", (req, res) => {
   //Have to include or header partial won't render
   const userCookieID = req.session.user_id;
   //even though the page doesn't need it
+
   const templateVars = {
     user_id: users[userCookieID],
   };
@@ -102,6 +103,7 @@ tinyUrlApp.post("/register", (req, res) => {
   if (user) {
     return res.status(403).send("User already exists.");
   }
+
   addUser(userID, userInput, users);
 
   req.session.user_id = userID;
@@ -123,11 +125,13 @@ tinyUrlApp.post("/urls/:id/edit", (req, res) => {
   if (!userCookieID) {
     return res.status(401).send("You need to be logged in to modify urls!");
   }
+
   if (!urlToUsrChk(id, userCookieID, urlDatabase)) {
     return res
       .status(401)
       .send("You are not authorized to make any changes to this url.");
   }
+
   if (!urlDatabase[id]) {
     return res.status(401).send("Url does not exist.");
   }
@@ -140,14 +144,17 @@ tinyUrlApp.post("/urls/:id/edit", (req, res) => {
 tinyUrlApp.post("/urls/:id/delete", (req, res) => {
   const userCookieID = req.session.user_id;
   const id = req.params.id;
+
   if (!userCookieID) {
     return res.status(401).send("You need to be logged in to modify urls!");
   }
+
   if (!urlToUsrChk(id, userCookieID, urlDatabase)) {
     return res
       .status(401)
       .send("You are not authorized to make any changes to this url.");
   }
+
   if (!urlDatabase[id]) {
     return res.status(401).send("Url does not exist.");
   }
@@ -171,6 +178,7 @@ tinyUrlApp.get("/u/:id", (req, res) => {
 //New URL form - Render
 tinyUrlApp.get("/urls/new", (req, res) => {
   const userCookieID = req.session.user_id;
+
   if (!userCookieID) {
     return res.redirect("/login");
   }
@@ -189,9 +197,11 @@ tinyUrlApp.get("/urls/:id", (req, res) => {
   if (!urlChk(id, urlDatabase)) {
     return res.status(400).send("The url does not exist.");
   }
+
   if (!userCookieID) {
     return res.status(401).send("You need to be logged in to modify urls!");
   }
+
   if (!urlToUsrChk(id, userCookieID, urlDatabase)) {
     return res
       .status(401)
@@ -204,6 +214,7 @@ tinyUrlApp.get("/urls/:id", (req, res) => {
     longURL: longURL,
     user_id: users[userCookieID],
   };
+
   res.render("urls_show", templateVars);
 });
 
@@ -216,7 +227,8 @@ tinyUrlApp.post("/urls", (req, res) => {
   if (!userCookieID) {
     return res.status(401).send("You need to be logged in to modify urls!");
   }
-  //Url assembly then add to object.
+
+  //Url assembly - add to object.
   addURL(tinyUrl, longUrl, userCookieID, urlDatabase);
 
   res.redirect(`/urls/${tinyUrl}`);
@@ -231,6 +243,7 @@ tinyUrlApp.get("/urls", function (req, res) {
     urls: userUrlDisplay,
     user_id: users[userCookieID],
   };
+  
   //Redirects if no user is logged in via cookies
   if (!userCookieID) {
     return res.redirect("/login");

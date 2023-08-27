@@ -1,106 +1,29 @@
+//-------- Depenedencies -------->
 const express = require("express");
+const bcrypt = require("bcryptjs");
 const morgan = require("morgan");
 const tinyUrlApp = express();
-const bcrypt = require("bcryptjs");
 const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
-const PORT = 8080;
+//-------- Data -------->
+const data = require('./data');
+const PORT = data.PORT;
+const users = data.users;
+const urlDatabase = data.urlDatabase;
 
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "m21nx8",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "m21nx8",
-  },
-  px7u8p: {
-    longURL: "http://www.lighthouselabs.ca",
-    userID: "x8c9fp",
-  },
-};
+//-------- Helper Functions -------->
+const helpers = require("./helpers");
+const generateRandomString = helpers.generateRandomString;
+const findUserByEmail = helpers.findUserByEmail;
+const findUrlByID = helpers.findUrlByID;
+const addUser = helpers.addUser;
+const addURL = helpers.addURL;
+const urlChk = helpers.urlChk;
+const urlsForUser = helpers.urlsForUser;
+const urlToUsrChk = helpers.urlToUsrChk;
 
-const users = {
-  m21nx8: {
-    id: "m21nx8",
-    email: "someguy@nerd.com",
-    password: "$2a$10$ByHCJmBYlwAAMSXni2MIBOrNhJ7r/a9SoeC83ZbRmR9McxF.TYgaW",
-  },
-  x8c9fp: {
-    id: "x8c9fp",
-    email: "fourofspades@cards.com",
-    password: "$2a$10$OGT6nJm9EaZwEdIUcvNJte923rW.tttN6wX.W3Ba3h8uLGV43jCMu",
-  },
-};
 
-//Generate random number and convert (some of the) chars
-//into a string using base36 to serve as url ID
-const generateRandomString = () => {
-  return Math.random().toString(36).substring(3, 9);
-};
-
-const findUserByEmail = (email) => {
-  for (const userId in users) {
-    if (users[userId].email === email) {
-      return users[userId];
-    }
-  }
-};
-
-const findUrlByID = (shortUrl) => {
-  for (const url in urlDatabase) {
-    if (url === shortUrl) {
-      return url;
-    }
-  }
-};
-
-const urlChk = (id) => {
-  const urlKeys = Object.keys(urlDatabase)
-  console.log(urlDatabase[id]);
-  if (urlKeys.includes(id)) {
-    return true;
-  }
-  return false;
-};
-
-const addUser = (userID, userInput) => {
-  const hashedPW = bcrypt.hashSync(userInput.password, 10);
-  users[userID] = {
-    id: userID,
-    email: userInput.email,
-    password: hashedPW,
-  };
-};
-
-const addURL = (tinyURL, longURL, userID) => {
-  urlDatabase[tinyURL] = {
-    longURL: `http://www.${longURL}`,
-    userID: userID,
-  };
-};
-
-const urlsForUser = (id) => {
-  let userURLS = {};
-  for (let url in urlDatabase) {
-    if (urlDatabase[url].userID === id) {
-      userURLS[url] = urlDatabase[url];
-    }
-  }
-  return userURLS;
-};
-
-const urlToUsrChk = (urlID, cookieUserID) => {
-  let url = urlDatabase[urlID];
-  if (url.userID !== cookieUserID) {
-    return false;
-  }
-  return true;
-};
-
-//------- Middle Ware ------>
-
+//------- Middle Ware -------------->
 tinyUrlApp.set("view engine", "ejs");
 tinyUrlApp.use(morgan("dev"));
 tinyUrlApp.use(cookieParser());
@@ -109,8 +32,6 @@ tinyUrlApp.use(
   cookieSession({
     name: "session",
     keys: ["fiveeightseven"],
-
-    // Cookie Options
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
   })
 );
@@ -149,7 +70,7 @@ tinyUrlApp.post("/login", (req, res) => {
     return res.status(403).send("Email and/or password does not match!");
   }
 
-  console.log(users);
+  // console.log(users);
   req.session.user_id = user.id;
   res.redirect("/urls");
 });
@@ -182,7 +103,7 @@ tinyUrlApp.post("/register", (req, res) => {
   }
   addUser(userID, userInput);
 
-  console.log(users); //User DB check - remove when submitting
+  // console.log(users);
   req.session.user_id = userID;
   res.redirect("/urls");
 });
@@ -303,13 +224,11 @@ tinyUrlApp.get("/urls", function (req, res) {
     urls: userUrlsDisplay,
     user_id: users[userCookieID],
   };
-
   //Redirects if no user is logged in via cookies
   if (!userCookieID) {
     return res.redirect("/login");
   }
 
-  console.log(urlDatabase);
   res.render("urls_index", templateVars);
 });
 
@@ -322,11 +241,16 @@ tinyUrlApp.get("/hello", function (req, res) {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-//View URL database object
+//View data in JSON
 tinyUrlApp.get("/urls.json", function (req, res) {
   res.json(urlDatabase);
+});
+tinyUrlApp.get("/users.json", function (req, res) {
+  res.json(users);
 });
 
 tinyUrlApp.listen(PORT, () => {
   console.log(`The server is listening on port: ${PORT}`);
 });
+
+

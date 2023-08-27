@@ -55,7 +55,7 @@ tinyUrlApp.get("/login", (req, res) => {
 //Login - Post
 tinyUrlApp.post("/login", (req, res) => {
   const userInput = req.body;
-  const user = findUserByEmail(userInput.email);
+  const user = findUserByEmail(userInput.email, users);
 
   if (!userInput.password || !userInput.email) {
     return res.status(400).send("Email and password can't be blank!");
@@ -96,7 +96,7 @@ tinyUrlApp.post("/register", (req, res) => {
     return res.status(400).send("Email and password can't be blank!");
   }
 
-  const user = findUserByEmail(userInput.email);
+  const user = findUserByEmail(userInput.email, users);
 
   if (user) {
     return res.status(403).send("User already exists.");

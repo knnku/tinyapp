@@ -9,10 +9,10 @@ const generateRandomString = () => {
   return Math.random().toString(36).substring(3, 9);
 };
 
-const findUserByEmail = (email) => {
-  for (const userId in users) {
-    if (users[userId].email === email) {
-      return users[userId];
+const findUserByEmail = (email, db) => {
+  for (const userId in db) {
+    if (db[userId].email === email) {
+      return db[userId];
     }
   }
 };

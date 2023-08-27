@@ -5,8 +5,9 @@ const morgan = require("morgan");
 const tinyUrlApp = express();
 const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
+
 //-------- Data -------->
-const data = require('./data');
+const data = require("./data");
 const PORT = data.PORT;
 const users = data.users;
 const urlDatabase = data.urlDatabase;
@@ -22,7 +23,6 @@ const urlChk = helpers.urlChk;
 const urlsForUser = helpers.urlsForUser;
 const urlToUsrChk = helpers.urlToUsrChk;
 
-
 //------- Middle Ware -------------->
 tinyUrlApp.set("view engine", "ejs");
 tinyUrlApp.use(morgan("dev"));
@@ -36,13 +36,13 @@ tinyUrlApp.use(
   })
 );
 
-//------- EXPRESS-HTTP methods here from then on ------>
+//------- HTTP methods here from then on ------>
 
 //Login - Render
 tinyUrlApp.get("/login", (req, res) => {
   //Have to include or header partial won't render
-  //even though the page doesn't need it
   const userCookieID = req.session.user_id;
+  //even though the page doesn't need it
   const templateVars = {
     user_id: users[userCookieID],
   };
@@ -70,7 +70,6 @@ tinyUrlApp.post("/login", (req, res) => {
     return res.status(403).send("Email and/or password does not match!");
   }
 
-  // console.log(users);
   req.session.user_id = user.id;
   res.redirect("/urls");
 });
@@ -81,9 +80,11 @@ tinyUrlApp.get("/register", (req, res) => {
   const templateVars = {
     user_id: users[userCookieID],
   };
+
   if (userCookieID) {
     return res.redirect("/urls");
   }
+
   res.render("urls_register", templateVars);
 });
 
@@ -103,12 +104,11 @@ tinyUrlApp.post("/register", (req, res) => {
   }
   addUser(userID, userInput, users);
 
-  // console.log(users);
   req.session.user_id = userID;
   res.redirect("/urls");
 });
 
-//Logout - delete cookie
+//Logout - Post
 tinyUrlApp.post("/logout", (req, res) => {
   req.session = null;
   res.redirect("/login");
@@ -120,8 +120,13 @@ tinyUrlApp.post("/urls/:id/edit", (req, res) => {
   const id = req.params.id;
   const longURL = req.body.longURL;
 
+  if (!userCookieID) {
+    return res.status(401).send("You need to be logged in to modify urls!");
+  }
   if (!urlToUsrChk(id, userCookieID, urlDatabase)) {
-    return res.status(401).send("You don't own the url to make any changes.");
+    return res
+      .status(401)
+      .send("You are not authorized to make any changes to this url.");
   }
   if (!urlDatabase[id]) {
     return res.status(401).send("Url does not exist.");
@@ -139,7 +144,9 @@ tinyUrlApp.post("/urls/:id/delete", (req, res) => {
     return res.status(401).send("You need to be logged in to modify urls!");
   }
   if (!urlToUsrChk(id, userCookieID, urlDatabase)) {
-    return res.status(401).send("You don't own the url to make any changes.");
+    return res
+      .status(401)
+      .send("You are not authorized to make any changes to this url.");
   }
   if (!urlDatabase[id]) {
     return res.status(401).send("Url does not exist.");
@@ -161,7 +168,7 @@ tinyUrlApp.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-//Create new URL form - render
+//New URL form - Render
 tinyUrlApp.get("/urls/new", (req, res) => {
   const userCookieID = req.session.user_id;
   if (!userCookieID) {
@@ -178,15 +185,17 @@ tinyUrlApp.get("/urls/new", (req, res) => {
 tinyUrlApp.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const userCookieID = req.session.user_id;
+
   if (!urlChk(id, urlDatabase)) {
     return res.status(400).send("The url does not exist.");
   }
   if (!userCookieID) {
     return res.status(401).send("You need to be logged in to modify urls!");
   }
-  //Checks URL if owned by user
   if (!urlToUsrChk(id, userCookieID, urlDatabase)) {
-    return res.status(401).send("You don't own the url to make any changes.");
+    return res
+      .status(401)
+      .send("You are not authorized to make any changes to this url.");
   }
 
   const longURL = urlDatabase[id].longURL;
@@ -198,24 +207,22 @@ tinyUrlApp.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-//Create new URL - Post
+//New URL - Post
 tinyUrlApp.post("/urls", (req, res) => {
   const userCookieID = req.session.user_id;
   let tinyUrl = generateRandomString();
   let longUrl = req.body.longURL;
-  // console.log(req.body); // Log the POST request body to the console
-  // res.send("Ok"); // Respond with 'Ok' (we will replace this)
-  // if (findUrlByID[userCookieID]) {
-  //   return res.status(401).send("You need to be logged in to shorten urls!");
-  // }
 
-  //Tiny and Long url assembly then add to object.
+  if (!userCookieID) {
+    return res.status(401).send("You need to be logged in to modify urls!");
+  }
+  //Url assembly then add to object.
   addURL(tinyUrl, longUrl, userCookieID, urlDatabase);
 
   res.redirect(`/urls/${tinyUrl}`);
 });
 
-//URL Homepage
+//App Homepage
 tinyUrlApp.get("/urls", function (req, res) {
   const userCookieID = req.session.user_id;
   const userUrlDisplay = urlsForUser(userCookieID, urlDatabase);
@@ -252,5 +259,3 @@ tinyUrlApp.get("/users.json", function (req, res) {
 tinyUrlApp.listen(PORT, () => {
   console.log(`The server is listening on port: ${PORT}`);
 });
-
-

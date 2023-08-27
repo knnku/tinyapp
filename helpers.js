@@ -1,7 +1,5 @@
 const bcrypt = require("bcryptjs");
 const data = require("./data");
-const users = data.users;
-const urlDatabase = data.urlDatabase;
 
 //Generate random number and convert (some of the) chars
 //into a string using base36 to serve as url ID
@@ -28,8 +26,8 @@ const findUrlByID = (shortUrl, db) => {
 };
 
 const addUser = (userID, userInput, db) => {
-  const password = userInput.password;
   const userEmail = userInput.email;
+  const password = userInput.password;
   const hashedPW = bcrypt.hashSync(password, 10);
   return (db[userID] = {
     id: userID,

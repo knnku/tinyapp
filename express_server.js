@@ -80,16 +80,16 @@ const urlsForUser = (id) => {
   return userURLS;
 };
 
-const urlCheck = (urlID, cookieUserID) => {
+const urlToUsrChk = (urlID, cookieUserID) => {
   let url = urlDatabase[urlID];
-  if(url.userID !== cookieUserID) {
+  if (!url.userID){
     return false;
   }
-
+  if (url.userID !== cookieUserID) {
+    return false;
+  }
   return true;
-}
-
-
+};
 
 //------- Middle Ware ------>
 
@@ -131,7 +131,6 @@ tinyUrlApp.post("/login", (req, res) => {
     return res.status(403).send("Email and password does not match!");
   }
 
-  console.log();
   res.cookie("user_id", user.id);
   res.redirect("/urls");
 });
@@ -178,9 +177,17 @@ tinyUrlApp.post("/logout", (req, res) => {
 
 //Edit URL - Post
 tinyUrlApp.post("/urls/:id/edit", (req, res) => {
+  const userCookieID = req.cookies["user_id"];
   const id = req.params.id;
   const longURL = req.body.longURL;
   urlDatabase[id].longURL = `http://www.${longURL}`;
+
+  if (!urlToUsrChk(id, userCookieID)) {
+    return res.status(401).send("You don't own the url to make any changes.");
+  }
+  if (urlDatabase[id] = null){
+    return res.status(401).send("Url does not exist.");
+  }
 
   res.redirect(`/urls`);
 });
@@ -188,11 +195,17 @@ tinyUrlApp.post("/urls/:id/edit", (req, res) => {
 //Delete URL - Post
 tinyUrlApp.post("/urls/:id/delete", (req, res) => {
   const userCookieID = req.cookies["user_id"];
+  const id = req.params.id;
   if (!userCookieID) {
     return res.status(401).send("You need to be logged in to modify urls!");
   }
+  if (!urlToUsrChk(id, userCookieID)) {
+    return res.status(401).send("You don't own the url to make any changes.");
+  }
+  if (urlDatabase[id] = null){
+    return res.status(401).send("Url does not exist.");
+  }
 
-  const id = req.params.id;
   delete urlDatabase[id];
   res.redirect("/urls");
 });
@@ -226,14 +239,14 @@ tinyUrlApp.get("/urls/new", (req, res) => {
 tinyUrlApp.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const userCookieID = req.cookies["user_id"];
-  const userUrlsDisplay = urlsForUser(userCookieID);
   if (!userCookieID) {
     return res.status(401).send("You need to be logged in to modify urls!");
   }
 
-  if(!urlCheck(id, userCookieID)) {
-    return res.status(401).send("You don't own the url biatchhh!");
-  };
+  //Checks URL if owned by user
+  if (!urlToUsrChk(id, userCookieID)) {
+    return res.status(401).send("You don't own the url to make any changes.");
+  }
 
   const longURL = urlDatabase[id].longURL;
   const templateVars = {
@@ -271,11 +284,13 @@ tinyUrlApp.get("/urls", function (req, res) {
     user_id: users[userCookieID],
   };
 
-  if (userCookieID) {
-    console.log(userUrlsDisplay);
-    return res.render("urls_index", templateVars);
+  //Redirects if no user is logged in via cookies
+  if (!userCookieID) {
+    return res.redirect("/login");
   }
-  res.redirect("/login");
+
+  console.log(userUrlsDisplay);
+  res.render("urls_index", templateVars);
 });
 
 //Server index - not sure why this has been implemented lol

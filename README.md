@@ -4,8 +4,9 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["screenshot description"](#)
-!["screenshot description"](#)
+!["Home Page"](https://raw.githubusercontent.com/knnku/tinyapp/main/docs/one.png)
+!["Url list"](https://raw.githubusercontent.com/knnku/tinyapp/main/docs/two.png)
+!["Url Editing"](https://raw.githubusercontent.com/knnku/tinyapp/main/docs/three.png)
 
 ## Dependencies
 
@@ -17,7 +18,8 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Getting Started
 
+- Fork and Clone the repository.
 - Install all dependencies (using the `npm install` command).
 - Run the server using the `npm start` command.
 - Login using the pre-defined users in `data.js`
-- Or create a new user and start shortening urls!
+- Or you can create a new user and start shortening urls!

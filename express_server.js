@@ -2,6 +2,7 @@ const express = require("express");
 const morgan = require("morgan");
 const tinyUrlApp = express();
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcryptjs");
 const PORT = 8080;
 
 const urlDatabase = {
@@ -23,12 +24,12 @@ const users = {
   m21nx8: {
     id: "m21nx8",
     email: "someguy@nerd.com",
-    password: "iamnoone",
+    password: "$2a$10$ByHCJmBYlwAAMSXni2MIBOrNhJ7r/a9SoeC83ZbRmR9McxF.TYgaW",
   },
   x8c9fp: {
     id: "x8c9fp",
     email: "fourofspades@cards.com",
-    password: "bingo",
+    password: "$2a$10$OGT6nJm9EaZwEdIUcvNJte923rW.tttN6wX.W3Ba3h8uLGV43jCMu",
   },
 };
 
@@ -76,13 +77,12 @@ const urlsForUser = (id) => {
       userURLS[url] = urlDatabase[url];
     }
   }
-  console.log(userURLS);
   return userURLS;
 };
 
 const urlToUsrChk = (urlID, cookieUserID) => {
   let url = urlDatabase[urlID];
-  if (!url.userID){
+  if (!url.userID) {
     return false;
   }
   if (url.userID !== cookieUserID) {
@@ -118,6 +118,7 @@ tinyUrlApp.get("/login", (req, res) => {
 tinyUrlApp.post("/login", (req, res) => {
   const userInput = req.body;
   const user = findUserByEmail(userInput.email);
+  const pwCheck = bcrypt.compareSync(userInput.password, user.password);
 
   if (!userInput.password || !userInput.email) {
     return res.status(400).send("Email and password can't be blank!");
@@ -127,10 +128,11 @@ tinyUrlApp.post("/login", (req, res) => {
     return res.status(403).send("User does not exist!");
   }
 
-  if (user.password !== userInput.password) {
+  if (!pwCheck) {
     return res.status(403).send("Email and password does not match!");
   }
 
+  console.log(users);
   res.cookie("user_id", user.id);
   res.redirect("/urls");
 });
@@ -180,15 +182,15 @@ tinyUrlApp.post("/urls/:id/edit", (req, res) => {
   const userCookieID = req.cookies["user_id"];
   const id = req.params.id;
   const longURL = req.body.longURL;
-  urlDatabase[id].longURL = `http://www.${longURL}`;
 
   if (!urlToUsrChk(id, userCookieID)) {
     return res.status(401).send("You don't own the url to make any changes.");
   }
-  if (urlDatabase[id] = null){
+  if (!urlDatabase[id]) {
     return res.status(401).send("Url does not exist.");
   }
 
+  urlDatabase[id].longURL = `http://www.${longURL}`;
   res.redirect(`/urls`);
 });
 
@@ -202,7 +204,7 @@ tinyUrlApp.post("/urls/:id/delete", (req, res) => {
   if (!urlToUsrChk(id, userCookieID)) {
     return res.status(401).send("You don't own the url to make any changes.");
   }
-  if (urlDatabase[id] = null){
+  if (!urlDatabase[id]) {
     return res.status(401).send("Url does not exist.");
   }
 
@@ -289,7 +291,7 @@ tinyUrlApp.get("/urls", function (req, res) {
     return res.redirect("/login");
   }
 
-  console.log(userUrlsDisplay);
+  console.log(urlDatabase);
   res.render("urls_index", templateVars);
 });
 

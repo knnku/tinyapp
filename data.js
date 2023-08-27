@@ -28,7 +28,6 @@ const users = {
   },
 };
 
-
 module.exports = {
   PORT,
   urlDatabase,

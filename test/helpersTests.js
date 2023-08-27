@@ -21,6 +21,11 @@ const testUsers = {
     email: "user2@example.com",
     password: "dishwasher-funk",
   },
+  cv78uo: {
+    id: "checkmate",
+    email: "user3@example.com",
+    password: "dishwasher-funk",
+  },
 };
 
 const testUrls = {
@@ -73,7 +78,7 @@ describe("findUrlbyID", function () {
 
 describe("addUser", function () {
   it("returns the userdb with users +1", function () {
-    const newUserDbLength = 3;
+    const newUserDbLength = 4;
     const newUser = { email: "newuser@yahoo.com", password: "mister" };
     addUser("randomid", newUser, testUsers);
 
@@ -86,7 +91,7 @@ describe("addURL", function () {
     const newUrlDbLength = 5;
     addURL("randomid", "random", "random", testUrls);
 
-    assert.strictEqual(newUrlDbLength , Object.keys(testUrls).length);
+    assert.strictEqual(newUrlDbLength, Object.keys(testUrls).length);
   });
 });
 
@@ -97,15 +102,33 @@ describe("urlChk", function () {
     assert.isTrue(urlChk(url, testUrls));
   });
 
-  it("false if db does not contain url", function () {
+  it("false if db does not contain url //Fail - Reality check", function () {
     const url = "000000";
     //False - reality check
     assert.isTrue(urlChk(url, testUrls));
   });
 });
 
+describe("urlsForUser", function () {
+  it("true if one of the urls returned have a matching userid tag", function () {
+    const urlcheck = urlsForUser("cv78uo", testUrls);
+    const expectedInfo = "um0w1a";
 
+    assert.isTrue(Object.keys(urlcheck).includes(expectedInfo));
+  });
+  it("false if urls returned = 0", function () {
+    const urlcheck = urlsForUser("notinside", testUrls);
+    const expectedInfo = "random";
 
+    assert.isFalse(Object.keys(urlcheck).includes(expectedInfo));
+  });
+});
 
+describe("urlToUsrChk", function () {
+  it("true user created the url", function () {
+    const loggedInUsr = "cv78uo";
+    const url = "um0w1a";
 
-
+    assert.isTrue(urlToUsrChk(url, loggedInUsr, testUrls));
+  });
+});

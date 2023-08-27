@@ -120,7 +120,7 @@ tinyUrlApp.post("/urls/:id/edit", (req, res) => {
   const id = req.params.id;
   const longURL = req.body.longURL;
 
-  if (!urlToUsrChk(id, userCookieID)) {
+  if (!urlToUsrChk(id, userCookieID, urlDatabase)) {
     return res.status(401).send("You don't own the url to make any changes.");
   }
   if (!urlDatabase[id]) {
@@ -138,7 +138,7 @@ tinyUrlApp.post("/urls/:id/delete", (req, res) => {
   if (!userCookieID) {
     return res.status(401).send("You need to be logged in to modify urls!");
   }
-  if (!urlToUsrChk(id, userCookieID)) {
+  if (!urlToUsrChk(id, userCookieID, urlDatabase)) {
     return res.status(401).send("You don't own the url to make any changes.");
   }
   if (!urlDatabase[id]) {
@@ -185,7 +185,7 @@ tinyUrlApp.get("/urls/:id", (req, res) => {
     return res.status(401).send("You need to be logged in to modify urls!");
   }
   //Checks URL if owned by user
-  if (!urlToUsrChk(id, userCookieID)) {
+  if (!urlToUsrChk(id, userCookieID, urlDatabase)) {
     return res.status(401).send("You don't own the url to make any changes.");
   }
 
@@ -218,10 +218,10 @@ tinyUrlApp.post("/urls", (req, res) => {
 //URL Homepage
 tinyUrlApp.get("/urls", function (req, res) {
   const userCookieID = req.session.user_id;
-  const userUrlsDisplay = urlsForUser(userCookieID);
+  const userUrlDisplay = urlsForUser(userCookieID, urlDatabase);
 
   const templateVars = {
-    urls: userUrlsDisplay,
+    urls: userUrlDisplay,
     user_id: users[userCookieID],
   };
   //Redirects if no user is logged in via cookies

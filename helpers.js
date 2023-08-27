@@ -1,5 +1,5 @@
 const bcrypt = require("bcryptjs");
-const data = require('./data');
+const data = require("./data");
 const users = data.users;
 const urlDatabase = data.urlDatabase;
 
@@ -29,56 +29,55 @@ const findUrlByID = (shortUrl, db) => {
 
 const addUser = (userID, userInput, db) => {
   const password = userInput.password;
-  const userEmail = userInput.email
+  const userEmail = userInput.email;
   const hashedPW = bcrypt.hashSync(password, 10);
-  return db[userID] = {
+  return (db[userID] = {
     id: userID,
     email: userEmail,
     password: hashedPW,
-  };
+  });
 };
 
 const addURL = (tinyURL, longURL, userID, db) => {
-  return db[tinyURL] = {
+  return (db[tinyURL] = {
     longURL: `http://www.${longURL}`,
     userID: userID,
-  };
+  });
 };
 
 const urlChk = (id, db) => {
-  const urlKeys = Object.keys(db)
+  const urlKeys = Object.keys(db);
   if (urlKeys.includes(id)) {
     return true;
   }
   return false;
 };
 
-const urlsForUser = (id) => {
+const urlsForUser = (id, db) => {
   let userURLS = {};
-  for (let url in urlDatabase) {
-    if (urlDatabase[url].userID === id) {
-      userURLS[url] = urlDatabase[url];
+  for (let url in db) {
+    if (db[url].userID === id) {
+      userURLS[url] = db[url];
     }
   }
   return userURLS;
 };
 
-const urlToUsrChk = (urlID, cookieUserID) => {
-  let url = urlDatabase[urlID];
+const urlToUsrChk = (urlID, cookieUserID, db) => {
+  let url = db[urlID];
   if (url.userID !== cookieUserID) {
     return false;
   }
   return true;
 };
 
-
 module.exports = {
   generateRandomString,
-  findUserByEmail, 
-  findUrlByID, 
+  findUserByEmail,
+  findUrlByID,
   urlChk,
   addUser,
   addURL,
   urlsForUser,
-  urlToUsrChk
-}
+  urlToUsrChk,
+};

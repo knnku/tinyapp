@@ -101,7 +101,7 @@ tinyUrlApp.post("/register", (req, res) => {
   if (user) {
     return res.status(403).send("User already exists.");
   }
-  addUser(userID, userInput);
+  addUser(userID, userInput, users);
 
   // console.log(users);
   req.session.user_id = userID;
@@ -153,7 +153,7 @@ tinyUrlApp.post("/urls/:id/delete", (req, res) => {
 tinyUrlApp.get("/u/:id", (req, res) => {
   const id = req.params.id;
 
-  if (!findUrlByID(id)) {
+  if (!findUrlByID(id, urlDatabase)) {
     return res.status(400).send("Url does not exist in the database.");
   }
 
@@ -178,7 +178,7 @@ tinyUrlApp.get("/urls/new", (req, res) => {
 tinyUrlApp.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const userCookieID = req.session.user_id;
-  if (!urlChk(id)) {
+  if (!urlChk(id, urlDatabase)) {
     return res.status(400).send("The url does not exist.");
   }
   if (!userCookieID) {
@@ -210,7 +210,7 @@ tinyUrlApp.post("/urls", (req, res) => {
   // }
 
   //Tiny and Long url assembly then add to object.
-  addURL(tinyUrl, longUrl, userCookieID);
+  addURL(tinyUrl, longUrl, userCookieID, urlDatabase);
 
   res.redirect(`/urls/${tinyUrl}`);
 });

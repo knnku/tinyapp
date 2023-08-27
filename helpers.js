@@ -10,39 +10,43 @@ const generateRandomString = () => {
 };
 
 const findUserByEmail = (email, db) => {
-  for (const userId in db) {
-    if (db[userId].email === email) {
-      return db[userId];
+  for (const user in db) {
+    if (db[user].email === email) {
+      return db[user];
     }
   }
+  return undefined;
 };
 
-const findUrlByID = (shortUrl) => {
-  for (const url in urlDatabase) {
+const findUrlByID = (shortUrl, db) => {
+  for (const url in db) {
     if (url === shortUrl) {
       return url;
     }
   }
+  return undefined;
 };
 
-const addUser = (userID, userInput) => {
-  const hashedPW = bcrypt.hashSync(userInput.password, 10);
-  users[userID] = {
+const addUser = (userID, userInput, db) => {
+  const password = userInput.password;
+  const userEmail = userInput.email
+  const hashedPW = bcrypt.hashSync(password, 10);
+  return db[userID] = {
     id: userID,
-    email: userInput.email,
+    email: userEmail,
     password: hashedPW,
   };
 };
 
-const addURL = (tinyURL, longURL, userID) => {
-  urlDatabase[tinyURL] = {
+const addURL = (tinyURL, longURL, userID, db) => {
+  return db[tinyURL] = {
     longURL: `http://www.${longURL}`,
     userID: userID,
   };
 };
 
-const urlChk = (id) => {
-  const urlKeys = Object.keys(urlDatabase)
+const urlChk = (id, db) => {
+  const urlKeys = Object.keys(db)
   if (urlKeys.includes(id)) {
     return true;
   }

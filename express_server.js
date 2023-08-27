@@ -1,8 +1,9 @@
 const express = require("express");
 const morgan = require("morgan");
 const tinyUrlApp = express();
-const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
+const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 const PORT = 8080;
 
 const urlDatabase = {
@@ -98,6 +99,15 @@ tinyUrlApp.set("view engine", "ejs");
 tinyUrlApp.use(morgan("dev"));
 tinyUrlApp.use(cookieParser());
 tinyUrlApp.use(express.urlencoded({ extended: true }));
+tinyUrlApp.use(
+  cookieSession({
+    name: "session",
+    keys: ["fiveeightseven"],
+
+    // Cookie Options
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  })
+);
 
 //------- EXPRESS-HTTP methods here from then on ------>
 
@@ -105,7 +115,7 @@ tinyUrlApp.use(express.urlencoded({ extended: true }));
 tinyUrlApp.get("/login", (req, res) => {
   //Have to include or header partial won't render
   //even though the page doesn't need it
-  const userCookieID = req.cookies["user_id"];
+  const userCookieID = req.session.user_id;
   const templateVars = {
     user_id: users[userCookieID],
   };
@@ -118,7 +128,7 @@ tinyUrlApp.get("/login", (req, res) => {
 //Login - Post
 tinyUrlApp.post("/login", (req, res) => {
   const userInput = req.body;
-  const user = findUserByEmail(userInput.email)
+  const user = findUserByEmail(userInput.email);
 
   if (!userInput.password || !userInput.email) {
     return res.status(400).send("Email and password can't be blank!");
@@ -134,13 +144,13 @@ tinyUrlApp.post("/login", (req, res) => {
   }
 
   console.log(users);
-  res.cookie("user_id", user.id);
+  req.session.user_id = user.id;
   res.redirect("/urls");
 });
 
 //Register - Render
 tinyUrlApp.get("/register", (req, res) => {
-  const userCookieID = req.cookies["user_id"];
+  const userCookieID = req.session.user_id;
   const templateVars = {
     user_id: users[userCookieID],
   };
@@ -167,19 +177,19 @@ tinyUrlApp.post("/register", (req, res) => {
   addUser(userID, userInput);
 
   console.log(users); //User DB check - remove when submitting
-  res.cookie("user_id", userID);
+  req.session.user_id = userID;
   res.redirect("/urls");
 });
 
 //Logout - delete cookie
 tinyUrlApp.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/login");
 });
 
 //Edit URL - Post
 tinyUrlApp.post("/urls/:id/edit", (req, res) => {
-  const userCookieID = req.cookies["user_id"];
+  const userCookieID = req.session.user_id;
   const id = req.params.id;
   const longURL = req.body.longURL;
 
@@ -196,7 +206,7 @@ tinyUrlApp.post("/urls/:id/edit", (req, res) => {
 
 //Delete URL - Post
 tinyUrlApp.post("/urls/:id/delete", (req, res) => {
-  const userCookieID = req.cookies["user_id"];
+  const userCookieID = req.session.user_id;
   const id = req.params.id;
   if (!userCookieID) {
     return res.status(401).send("You need to be logged in to modify urls!");
@@ -226,7 +236,7 @@ tinyUrlApp.get("/u/:id", (req, res) => {
 
 //Create new URL form - render
 tinyUrlApp.get("/urls/new", (req, res) => {
-  const userCookieID = req.cookies["user_id"];
+  const userCookieID = req.session.user_id;
   if (!userCookieID) {
     return res.redirect("/login");
   }
@@ -240,7 +250,7 @@ tinyUrlApp.get("/urls/new", (req, res) => {
 //Redirect to new URL after submitting
 tinyUrlApp.get("/urls/:id", (req, res) => {
   const id = req.params.id;
-  const userCookieID = req.cookies["user_id"];
+  const userCookieID = req.session.user_id
   if (!userCookieID) {
     return res.status(401).send("You need to be logged in to modify urls!");
   }
@@ -261,7 +271,7 @@ tinyUrlApp.get("/urls/:id", (req, res) => {
 
 //Create new URL - Post
 tinyUrlApp.post("/urls", (req, res) => {
-  const userCookieID = req.cookies["user_id"];
+  const userCookieID = req.session.user_id;
   let tinyUrl = generateRandomString();
   let longUrl = req.body.longURL;
   // console.log(req.body); // Log the POST request body to the console
@@ -278,7 +288,7 @@ tinyUrlApp.post("/urls", (req, res) => {
 
 //URL Homepage
 tinyUrlApp.get("/urls", function (req, res) {
-  const userCookieID = req.cookies["user_id"];
+  const userCookieID = req.session.user_id;
   const userUrlsDisplay = urlsForUser(userCookieID);
 
   const templateVars = {

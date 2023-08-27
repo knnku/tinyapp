@@ -56,10 +56,11 @@ const findUrlByID = (shortUrl) => {
 };
 
 const addUser = (userID, userInput) => {
+  const hashedPW = bcrypt.hashSync(userInput.password, 10);
   users[userID] = {
     id: userID,
     email: userInput.email,
-    password: userInput.password,
+    password: hashedPW,
   };
 };
 
@@ -117,8 +118,7 @@ tinyUrlApp.get("/login", (req, res) => {
 //Login - Post
 tinyUrlApp.post("/login", (req, res) => {
   const userInput = req.body;
-  const user = findUserByEmail(userInput.email);
-  const pwCheck = bcrypt.compareSync(userInput.password, user.password);
+  const user = findUserByEmail(userInput.email)
 
   if (!userInput.password || !userInput.email) {
     return res.status(400).send("Email and password can't be blank!");
@@ -128,8 +128,9 @@ tinyUrlApp.post("/login", (req, res) => {
     return res.status(403).send("User does not exist!");
   }
 
+  const pwCheck = bcrypt.compareSync(userInput.password, user.password);
   if (!pwCheck) {
-    return res.status(403).send("Email and password does not match!");
+    return res.status(403).send("Email and/or password does not match!");
   }
 
   console.log(users);
@@ -163,7 +164,6 @@ tinyUrlApp.post("/register", (req, res) => {
   if (user) {
     return res.status(403).send("User already exists.");
   }
-
   addUser(userID, userInput);
 
   console.log(users); //User DB check - remove when submitting

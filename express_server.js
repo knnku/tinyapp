@@ -56,6 +56,15 @@ const findUrlByID = (shortUrl) => {
   }
 };
 
+const urlChk = (id) => {
+  const urlKeys = Object.keys(urlDatabase)
+  console.log(urlDatabase[id]);
+  if (urlKeys.includes(id)) {
+    return true;
+  }
+  return false;
+};
+
 const addUser = (userID, userInput) => {
   const hashedPW = bcrypt.hashSync(userInput.password, 10);
   users[userID] = {
@@ -84,9 +93,6 @@ const urlsForUser = (id) => {
 
 const urlToUsrChk = (urlID, cookieUserID) => {
   let url = urlDatabase[urlID];
-  if (!url.userID) {
-    return false;
-  }
   if (url.userID !== cookieUserID) {
     return false;
   }
@@ -250,11 +256,13 @@ tinyUrlApp.get("/urls/new", (req, res) => {
 //Redirect to new URL after submitting
 tinyUrlApp.get("/urls/:id", (req, res) => {
   const id = req.params.id;
-  const userCookieID = req.session.user_id
+  const userCookieID = req.session.user_id;
+  if (!urlChk(id)) {
+    return res.status(400).send("The url does not exist.");
+  }
   if (!userCookieID) {
     return res.status(401).send("You need to be logged in to modify urls!");
   }
-
   //Checks URL if owned by user
   if (!urlToUsrChk(id, userCookieID)) {
     return res.status(401).send("You don't own the url to make any changes.");

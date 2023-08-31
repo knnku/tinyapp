@@ -252,21 +252,9 @@ tinyUrlApp.get("/urls", function (req, res) {
   res.render("urls_index", templateVars);
 });
 
-//Server index - not sure why this has been implemented lol
+
 tinyUrlApp.get("/", function (req, res) {
   res.send("Hello!");
-});
-
-tinyUrlApp.get("/hello", function (req, res) {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-//View data in JSON
-tinyUrlApp.get("/urls.json", function (req, res) {
-  res.json(urlDatabase);
-});
-tinyUrlApp.get("/users.json", function (req, res) {
-  res.json(users);
 });
 
 tinyUrlApp.listen(PORT, () => {

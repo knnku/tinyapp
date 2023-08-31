@@ -38,6 +38,18 @@ tinyUrlApp.use(
 
 //------- HTTP methods from here then on ------>
 
+tinyUrlApp.get("/", function (req, res) {
+  const userCookieID = req.session.user_id;
+   const templateVars = {
+    user_id: users[userCookieID],
+  };
+
+  if (userCookieID) {
+    return res.redirect("/urls");
+  }
+  res.render("urls_login", templateVars);
+});
+
 //Login - Render
 tinyUrlApp.get("/login", (req, res) => {
   //Have to include or header partial won't render
@@ -250,11 +262,6 @@ tinyUrlApp.get("/urls", function (req, res) {
   }
 
   res.render("urls_index", templateVars);
-});
-
-
-tinyUrlApp.get("/", function (req, res) {
-  res.send("Hello!");
 });
 
 tinyUrlApp.listen(PORT, () => {

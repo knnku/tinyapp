@@ -153,10 +153,17 @@ tinyUrlApp.post("/logout", (req, res) => {
 
 //------- HTTP GET / RENDERS------>
 
-
 // Redirect to long URL via urls_show
 tinyUrlApp.get("/u/:id", (req, res) => {
+  const userCookieID = req.session.user_id;
   const id = req.params.id;
+  const templateVars = {
+    user_id: users[userCookieID],
+  };
+
+  if (!userCookieID) {
+    return res.redirect("/login");
+  }
 
   if (!findUrlByID(id, urlDatabase)) {
     return res.status(400).send("Url does not exist in the database.");

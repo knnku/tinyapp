@@ -38,7 +38,7 @@ const addUser = (userID, userInput, db) => {
 
 const addURL = (tinyURL, longURL, userID, db) => {
   return (db[tinyURL] = {
-    longURL: `http://www.${longURL}`,
+    longURL: `${longURL}`,
     userID: userID,
   });
 };

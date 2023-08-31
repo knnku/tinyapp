@@ -36,34 +36,7 @@ tinyUrlApp.use(
   })
 );
 
-//------- HTTP methods from here then on ------>
-
-tinyUrlApp.get("/", function (req, res) {
-  const userCookieID = req.session.user_id;
-   const templateVars = {
-    user_id: users[userCookieID],
-  };
-
-  if (userCookieID) {
-    return res.redirect("/urls");
-  }
-  res.render("urls_login", templateVars);
-});
-
-//Login - Render
-tinyUrlApp.get("/login", (req, res) => {
-  //Have to include or header partial won't render
-  const userCookieID = req.session.user_id;
-  //even though the page doesn't need it
-
-  const templateVars = {
-    user_id: users[userCookieID],
-  };
-  if (userCookieID) {
-    return res.redirect("/urls");
-  }
-  res.render("urls_login", templateVars);
-});
+//------- HTTP POSTS------>
 
 //Login - Post
 tinyUrlApp.post("/login", (req, res) => {
@@ -87,20 +60,6 @@ tinyUrlApp.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
-//Register - Render
-tinyUrlApp.get("/register", (req, res) => {
-  const userCookieID = req.session.user_id;
-  const templateVars = {
-    user_id: users[userCookieID],
-  };
-
-  if (userCookieID) {
-    return res.redirect("/urls");
-  }
-
-  res.render("urls_register", templateVars);
-});
-
 //Register - Post
 tinyUrlApp.post("/register", (req, res) => {
   const userID = generateRandomString();
@@ -120,12 +79,6 @@ tinyUrlApp.post("/register", (req, res) => {
 
   req.session.user_id = userID;
   res.redirect("/urls");
-});
-
-//Logout - Post
-tinyUrlApp.post("/logout", (req, res) => {
-  req.session = null;
-  res.redirect("/login");
 });
 
 //Edit URL - Post
@@ -174,6 +127,31 @@ tinyUrlApp.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[id];
   res.redirect("/urls");
 });
+
+//New URL - Post
+tinyUrlApp.post("/urls", (req, res) => {
+  const userCookieID = req.session.user_id;
+  let tinyUrl = generateRandomString();
+  let longUrl = req.body.longURL;
+
+  if (!userCookieID) {
+    return res.status(401).send("You need to be logged in to modify urls!");
+  }
+
+  //Url assembly - add to object.
+  addURL(tinyUrl, longUrl, userCookieID, urlDatabase);
+
+  res.redirect(`/urls/${tinyUrl}`);
+});
+
+//Logout - Post
+tinyUrlApp.post("/logout", (req, res) => {
+  req.session = null;
+  res.redirect("/login");
+});
+
+//------- HTTP GET / RENDERS------>
+
 
 // Redirect to long URL via urls_show
 tinyUrlApp.get("/u/:id", (req, res) => {
@@ -230,20 +208,33 @@ tinyUrlApp.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-//New URL - Post
-tinyUrlApp.post("/urls", (req, res) => {
+//Login - Render
+tinyUrlApp.get("/login", (req, res) => {
+  //Have to include or header partial won't render
   const userCookieID = req.session.user_id;
-  let tinyUrl = generateRandomString();
-  let longUrl = req.body.longURL;
+  //even though the page doesn't need it
 
-  if (!userCookieID) {
-    return res.status(401).send("You need to be logged in to modify urls!");
+  const templateVars = {
+    user_id: users[userCookieID],
+  };
+  if (userCookieID) {
+    return res.redirect("/urls");
+  }
+  res.render("urls_login", templateVars);
+});
+
+//Register - Render
+tinyUrlApp.get("/register", (req, res) => {
+  const userCookieID = req.session.user_id;
+  const templateVars = {
+    user_id: users[userCookieID],
+  };
+
+  if (userCookieID) {
+    return res.redirect("/urls");
   }
 
-  //Url assembly - add to object.
-  addURL(tinyUrl, longUrl, userCookieID, urlDatabase);
-
-  res.redirect(`/urls/${tinyUrl}`);
+  res.render("urls_register", templateVars);
 });
 
 //App Homepage
@@ -262,6 +253,19 @@ tinyUrlApp.get("/urls", function (req, res) {
   }
 
   res.render("urls_index", templateVars);
+});
+
+//Localhost Landing page
+tinyUrlApp.get("/", function (req, res) {
+  const userCookieID = req.session.user_id;
+   const templateVars = {
+    user_id: users[userCookieID],
+  };
+
+  if (userCookieID) {
+    return res.redirect("/urls");
+  }
+  res.render("urls_login", templateVars);
 });
 
 tinyUrlApp.listen(PORT, () => {

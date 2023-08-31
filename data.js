@@ -19,12 +19,12 @@ const users = {
   m21nx8: {
     id: "m21nx8",
     email: "someguy@nerd.com",
-    password: "$2a$10$ByHCJmBYlwAAMSXni2MIBOrNhJ7r/a9SoeC83ZbRmR9McxF.TYgaW",
+    password: "$2a$10$ByHCJmBYlwAAMSXni2MIBOrNhJ7r/a9SoeC83ZbRmR9McxF.TYgaW", //iamnoone
   },
   x8c9fp: {
     id: "x8c9fp",
     email: "fourofspades@cards.com",
-    password: "$2a$10$OGT6nJm9EaZwEdIUcvNJte923rW.tttN6wX.W3Ba3h8uLGV43jCMu",
+    password: "$2a$10$OGT6nJm9EaZwEdIUcvNJte923rW.tttN6wX.W3Ba3h8uLGV43jCMu", //bingo
   },
 };
 

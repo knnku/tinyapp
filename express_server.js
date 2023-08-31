@@ -13,15 +13,16 @@ const users = data.users;
 const urlDatabase = data.urlDatabase;
 
 //-------- Helper Functions -------->
-const helpers = require("./helpers");
-const generateRandomString = helpers.generateRandomString;
-const findUserByEmail = helpers.findUserByEmail;
-const findUrlByID = helpers.findUrlByID;
-const addUser = helpers.addUser;
-const addURL = helpers.addURL;
-const urlChk = helpers.urlChk;
-const urlsForUser = helpers.urlsForUser;
-const urlToUsrChk = helpers.urlToUsrChk;
+const {
+  generateRandomString,
+  findUserByEmail,
+  findUrlByID,
+  addUser,
+  addURL,
+  urlChk,
+  urlsForUser,
+  urlToUsrChk
+} = require("./helpers");
 
 //------- Middle Ware -------------->
 tinyUrlApp.set("view engine", "ejs");

@@ -105,7 +105,7 @@ describe("urlChk", function () {
   it("false if db does not contain url //Fail - Reality check", function () {
     const url = "000000";
     //False - reality check
-    assert.isTrue(urlChk(url, testUrls));
+    assert.isFalse(urlChk(url, testUrls));
   });
 });
 
